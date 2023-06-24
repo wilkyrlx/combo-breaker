@@ -1,13 +1,19 @@
 #include "Arduino.h"
 #include "Keypad.h"
+#include "Servo.h"
 
 // ======================== SETUP ==============================================
-// Define stepper motor connections and steps per revolution:
+// Setup switches
+int resetSwitchPin = 2;
+
+// Setup servo
+Servo unlockServo;
+int servoPin = 7; // TODO: check if this is a valid pin
+
+// Setup stepper motor connections and steps per revolution:
 int dirPin = 4;
 int stepPin = 3;
 int stepsPerRevolution = 5;  // equivalent to one tick on a masterlock
-
-int resetSwitchPin = 2;
 
 // Setup keypad variables
 // The order from left to right is COL2, ROW1, COL1, ROW4, COL3, ROW3, ROW2
@@ -19,7 +25,6 @@ char keys[ROWS][COLS] = {
 
 byte rowPins[ROWS] = {12, 5, 6, 10};  // connect to the row pinouts
 byte colPins[COLS] = {11, 13, 9};     // connect to the column pinouts
-
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 // Potential numbers for each combo
@@ -34,6 +39,7 @@ void setup() {
     pinMode(stepPin, OUTPUT);        // stepper pin - controls # of steps
     pinMode(dirPin, OUTPUT);         // stepper pin - controls direction
     pinMode(resetSwitchPin, INPUT);  // reset switch pin
+    unlockServo.attach(servoPin);
 }
 
 void loop() {
@@ -173,4 +179,9 @@ void spin(int dir, int ticks) {
     }
 
     delay(1000);
+}
+
+void tryUnlock() {
+    // TODO: finish this function
+    unlockServo.write(180);
 }
