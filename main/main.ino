@@ -5,7 +5,7 @@
 // Define stepper motor connections and steps per revolution:
 int dirPin = 4;
 int stepPin = 3;
-int stepsPerRevolution = 5;
+int stepsPerRevolution = 5;  // equivalent to one tick on a masterlock
 
 int resetSwitchPin = 2;
 
@@ -16,14 +16,14 @@ const byte ROWS = 4;  // four rows
 const byte COLS = 3;  // three columns
 char keys[ROWS][COLS] = {
     {'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}, {'*', '0', '#'}};
-byte rowPins[ROWS] = {12, 5, 6,
-                      10};  // connect to the row pinouts of the keypad
-byte colPins[COLS] = {11, 13,
-                      9};  // connect to the column pinouts of the keypad
+
+byte rowPins[ROWS] = {12, 5, 6, 10};  // connect to the row pinouts
+byte colPins[COLS] = {11, 13, 9};     // connect to the column pinouts
+
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-// Global variable
-int firstNum;
+// Potential numbers for each combo
+int firstNum;       
 int secondNum[10];
 int thirdNum[2];
 
@@ -40,6 +40,7 @@ void loop() {
     char keyCode[7] = getKeyCode();
     calculateCombos(keyCode);
     printAnswers();
+    tryAnswers();
 }
 
 char* getKeyCode() {
@@ -85,8 +86,7 @@ void calculateCombos(char keyCode[]) {
         parseCharToInt(keyCode[4], keyCode[5], keyCode[6]);
 
     // Calculate first number
-    // TODO: verify we want to return floor of this
-    firstNum = resistantLocation + 5.5f;
+    firstNum = floor(resistantLocation + 5.5f);
     int moduloPlace = firstNum % 4;
     int minusModuloAnswer = (firstNum - 2) % 10;
 
@@ -147,11 +147,11 @@ void tryAnswers() {
 void enterCombo(int pinA, int pinB, int pinC) {
     Serial.println("Combo: " + pinA + " " + pinB + " " + pinC);
     delay(100);
-    spin(0, 40 - pinA);
-    spin(1, (40 + (40 - pinA) + pinB));
-    spin(0, pinB + 40 - pinC);
+    spin(0, 40 - pinA);                  // spin to first number
+    spin(1, (40 + (40 - pinA) + pinB));  // spin to second number
+    spin(0, pinB + 40 - pinC);           // spin to third number
     delay(3000);
-    spin(0, pinC + 80);
+    spin(0, pinC + 80);  // spin to reset position
 }
 
 void spin(int dir, int ticks) {
